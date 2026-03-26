@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { client } from './lib/nakama';
+import { client, USE_SSL } from './lib/nakama';
 import { Session, type Socket, type MatchmakerMatched, type Match } from '@heroiclabs/nakama-js';
 import { GameBoard } from './components/GameBoard';
 import { Leaderboard } from './components/Leaderboard';
@@ -34,7 +34,7 @@ export default function App() {
                 const newSession = await client.authenticateDevice(deviceId, true);
                 setSession(newSession);
 
-                const newSocket = client.createSocket(false, false);
+                const newSocket = client.createSocket(USE_SSL, false);
                 
                 // Set up event listeners BEFORE connect
                 newSocket.ondisconnect = () => {
