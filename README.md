@@ -18,13 +18,13 @@ This repository is fully containerized using Docker Compose.
    docker-compose up -d --build
    ```
 3. **Services**:
-   - The **React Frontend** will be available at `http://localhost`.
+   - The **React Frontend** will be available at `http://localhost:3000`.
    - The **Nakama Developer Console** will be available at `http://localhost:7351` (Login: `admin` / `password`).
    - The **Nakama API** is exposed for the client at `http://localhost:7350`.
 
 ## Testing the Multiplayer
 
-1. Open `http://localhost` in your browser.
+1. Open `http://localhost:3000` in your browser.
 2. Open a *second window* in **Incognito Mode** (this forces a different device_id, creating a separate player account dynamically).
 3. Click **Find Match** on the first window. You'll enter the matchmaking pool.
 4. Click **Find Match** on the second window.
