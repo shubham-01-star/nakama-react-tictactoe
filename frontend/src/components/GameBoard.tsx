@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import type { Match, Socket, MatchData } from '@heroiclabs/nakama-js';
+import type { Match, Socket } from '@heroiclabs/nakama-js';
 
 const OP_MOVE = 1;
-const OP_STATE = 2;
 
 interface MatchState {
     board: number[];
@@ -12,27 +11,8 @@ interface MatchState {
     marks: { [sessionId: string]: number }; // Maps Session ID to 1 (X) or 2 (O)
 }
 
-export function GameBoard({ socket, match, sessionId, onLeave }: { socket: Socket, match: Match, sessionId: string, onLeave: () => void }) {
-    const [gameState, setGameState] = useState<MatchState | null>(null);
+export function GameBoard({ socket, match, sessionId, gameState, onLeave }: { socket: Socket, match: Match, sessionId: string, gameState: MatchState | null, onLeave: () => void }) {
     const [timeLeft, setTimeLeft] = useState<number>(30);
-
-    useEffect(() => {
-        socket.onmatchdata = (matchData: MatchData) => {
-            if (matchData.op_code === OP_STATE) {
-                try {
-                    const strData = new TextDecoder().decode(matchData.data);
-                    const parsed = JSON.parse(strData) as MatchState;
-                    setGameState(parsed);
-                } catch (e) {
-                    console.error("Failed to parse state", e);
-                }
-            }
-        };
-
-        return () => {
-            socket.onmatchdata = () => {};
-        };
-    }, [socket]);
 
     useEffect(() => {
         if (!gameState) return;

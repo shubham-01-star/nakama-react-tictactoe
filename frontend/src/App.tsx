@@ -1,8 +1,18 @@
 import { useEffect, useState } from 'react';
 import { client, USE_SSL } from './lib/nakama';
-import { Session, type Socket, type MatchmakerMatched, type Match } from '@heroiclabs/nakama-js';
+import { Session, type Socket, type MatchmakerMatched, type Match, type MatchData } from '@heroiclabs/nakama-js';
 import { GameBoard } from './components/GameBoard';
 import { Leaderboard } from './components/Leaderboard';
+
+const OP_STATE = 2;
+
+interface MatchState {
+    board: number[];
+    turn: number;
+    deadline: number;
+    winner: number;
+    marks: { [sessionId: string]: number };
+}
 
 const generateDeviceId = () => {
     let id = localStorage.getItem('device_id');
@@ -23,6 +33,7 @@ export default function App() {
     // Matchmaking State
     const [ticket, setTicket] = useState<string | null>(null);
     const [match, setMatch] = useState<Match | null>(null);
+    const [gameState, setGameState] = useState<MatchState | null>(null);
     const [mode, setMode] = useState<'classic' | 'timed'>('timed');
     const [tab, setTab] = useState<'play' | 'leaderboard'>('play');
 
@@ -41,11 +52,24 @@ export default function App() {
                 newSocket.ondisconnect = () => {
                     setMatch(null);
                     setTicket(null);
+                    setGameState(null);
+                };
+
+                newSocket.onmatchdata = (matchData: MatchData) => {
+                    if (matchData.op_code !== OP_STATE) return;
+                    try {
+                        const strData = new TextDecoder().decode(matchData.data);
+                        const parsed = JSON.parse(strData) as MatchState;
+                        setGameState(parsed);
+                    } catch (e) {
+                        console.error("Failed to parse state", e);
+                    }
                 };
 
                 newSocket.onmatchmakermatched = async (matched: MatchmakerMatched) => {
                     console.log("Matchmaker Matched:", matched);
                     try {
+                        setGameState(null);
                         const joinedMatch = matched.match_id
                             ? await newSocket.joinMatch(matched.match_id)
                             : await newSocket.joinMatch(undefined, matched.token);
@@ -122,7 +146,8 @@ export default function App() {
                     socket={socket} 
                     match={match} 
                     sessionId={match.self.session_id!} 
-                    onLeave={() => { setMatch(null); setTicket(null); }} 
+                    gameState={gameState}
+                    onLeave={() => { setMatch(null); setTicket(null); setGameState(null); }} 
                 />
             </div>
         );
