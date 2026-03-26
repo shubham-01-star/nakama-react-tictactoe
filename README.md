@@ -1,4 +1,4 @@
-# Lila Multiplayer Tic-Tac-Toe
+# Multiplayer Tic-Tac-Toe
 
 This is a complete, production-ready Multiplayer Tic-Tac-Toe game powered by an Authoritative Server model using Nakama.
 

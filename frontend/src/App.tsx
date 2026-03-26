@@ -123,8 +123,8 @@ export default function App() {
     // Render Lobby UI
     return (
         <div className="min-h-screen p-8 flex flex-col items-center">
-            <h1 className="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-                Lila's Tic-Tac-Toe
+            <h1 className="text-4xl font-bold mb-8 text-white">
+                Multiplayer Tic-Tac-Toe
             </h1>
 
             {/* Tab Navigation */}
