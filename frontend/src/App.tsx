@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { client } from './nakama';
-import { Session, Socket, MatchmakerMatched, Match } from '@heroiclabs/nakama-js';
+import { Session, type Socket, type MatchmakerMatched, type Match } from '@heroiclabs/nakama-js';
 import { GameBoard } from './GameBoard';
 
 const generateDeviceId = () => {
@@ -34,7 +34,7 @@ export default function App() {
                 const newSocket = client.createSocket(false, false);
                 
                 // Set up event listeners BEFORE connect
-                newSocket.ontransportclose = () => {
+                newSocket.ondisconnect = () => {
                     setMatch(null);
                     setTicket(null);
                 };
@@ -64,7 +64,7 @@ export default function App() {
         initNakama();
 
         return () => {
-            if (activeSocket) activeSocket.disconnect();
+            if (activeSocket) activeSocket.disconnect(false);
         };
     }, []);
 

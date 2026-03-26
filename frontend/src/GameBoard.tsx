@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Match, Socket, MatchData } from '@heroiclabs/nakama-js';
+import type { Match, Socket, MatchData } from '@heroiclabs/nakama-js';
 
 const OP_MOVE = 1;
 const OP_STATE = 2;
