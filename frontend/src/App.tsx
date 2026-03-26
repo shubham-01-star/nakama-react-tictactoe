@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { client } from './nakama';
 import { Session, Socket, MatchmakerMatched, Match } from '@heroiclabs/nakama-js';
+import { GameBoard } from './GameBoard';
 
 const generateDeviceId = () => {
     let id = localStorage.getItem('device_id');
@@ -96,17 +97,18 @@ export default function App() {
     </div>;
 
     // Render In-Game UI
-    if (match) {
+    if (match && socket) {
         return (
             <div className="min-h-screen p-8 flex flex-col items-center">
                 <h1 className="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
                     Lila's Tic-Tac-Toe
                 </h1>
-                <div className="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-lg text-center">
-                    <h2 className="text-2xl font-bold mb-4 text-emerald-400">Match Found!</h2>
-                    <p className="mb-4">Match ID: <span className="font-mono text-sm">{match.match_id}</span></p>
-                    <p className="text-slate-400 italic">Phase 7: We will render the 3x3 game board here next!</p>
-                </div>
+                <GameBoard 
+                    socket={socket} 
+                    match={match} 
+                    sessionId={match.self.session_id!} 
+                    onLeave={() => { setMatch(null); setTicket(null); }} 
+                />
             </div>
         );
     }
