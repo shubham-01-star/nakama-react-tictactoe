@@ -27,7 +27,7 @@ services:
     depends_on:
       - cockroachdb
     volumes:
-      - ./backend/build:/nakama/data/modules/build
+      - ./backend/build:/nakama/data/modules
     ports:
       - "7348:7348"
       - "7349:7349"

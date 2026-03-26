@@ -18,6 +18,7 @@ export default function App() {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [matchmakingError, setMatchmakingError] = useState<string | null>(null);
 
     // Matchmaking State
     const [ticket, setTicket] = useState<string | null>(null);
@@ -45,11 +46,16 @@ export default function App() {
                 newSocket.onmatchmakermatched = async (matched: MatchmakerMatched) => {
                     console.log("Matchmaker Matched:", matched);
                     try {
-                        const joinedMatch = await newSocket.joinMatch(matched.match_id || matched.token);
+                        const joinedMatch = matched.match_id
+                            ? await newSocket.joinMatch(matched.match_id)
+                            : await newSocket.joinMatch(undefined, matched.token);
                         setMatch(joinedMatch);
                         setTicket(null);
+                        setMatchmakingError(null);
                     } catch (e) {
                         console.error("Failed to join match:", e);
+                        setTicket(null);
+                        setMatchmakingError("Matched an opponent, but failed to join the game. Please try again.");
                     }
                 };
 
@@ -74,6 +80,7 @@ export default function App() {
     const findMatch = async () => {
         if (!socket) return;
         try {
+            setMatchmakingError(null);
             const matchmakerTicket = await socket.addMatchmaker(
                 "+properties.mode:" + mode, // Only match with same mode players
                 2, 2,
@@ -91,6 +98,7 @@ export default function App() {
         try {
             await socket.removeMatchmaker(ticket);
             setTicket(null);
+            setMatchmakingError(null);
         } catch (e) {
             console.error("Cancel error:", e);
         }
@@ -179,6 +187,11 @@ export default function App() {
 
                     <div className="border-t border-slate-700 pt-6">
                         <h2 className="text-xl font-semibold mb-4 text-center">Lobby</h2>
+                        {matchmakingError ? (
+                            <p className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                                {matchmakingError}
+                            </p>
+                        ) : null}
                         
                         {!ticket ? (
                             <button 
