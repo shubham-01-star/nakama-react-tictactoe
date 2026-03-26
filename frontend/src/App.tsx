@@ -164,13 +164,13 @@ export default function App() {
             <div className="flex mb-6 bg-slate-800 rounded-xl p-1 gap-1">
                 <button
                     onClick={() => setTab('play')}
-                    className={`px-6 py-2 rounded-lg font-semibold transition-colors ${tab === 'play' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-6 py-2 rounded-lg font-semibold cursor-pointer transition-all hover:scale-105 active:scale-95 ${tab === 'play' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-white'}`}
                 >
                     Play
                 </button>
                 <button
                     onClick={() => setTab('leaderboard')}
-                    className={`px-6 py-2 rounded-lg font-semibold transition-colors ${tab === 'leaderboard' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-6 py-2 rounded-lg font-semibold cursor-pointer transition-all hover:scale-105 active:scale-95 ${tab === 'leaderboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-white'}`}
                 >
                     Leaderboard
                 </button>
@@ -221,7 +221,7 @@ export default function App() {
                         {!ticket ? (
                             <button 
                                 onClick={findMatch}
-                                className="w-full bg-blue-600 hover:bg-blue-500 transition-colors py-3 rounded-lg font-bold text-white shadow hover:shadow-blue-500/30">
+                                className="w-full bg-blue-600 hover:bg-blue-500 cursor-pointer transition-all hover:scale-105 active:scale-95 py-3 rounded-lg font-bold text-white shadow-xl shadow-blue-600/30">
                                 Find Match
                             </button>
                         ) : (
@@ -232,7 +232,7 @@ export default function App() {
                                 </div>
                                 <button 
                                     onClick={cancelMatch}
-                                    className="w-full bg-slate-700 hover:bg-slate-600 transition-colors py-3 rounded-lg font-bold text-slate-300">
+                                    className="w-full bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all hover:scale-105 active:scale-95 py-3 rounded-lg font-bold text-slate-300">
                                     Cancel Search
                                 </button>
                             </div>

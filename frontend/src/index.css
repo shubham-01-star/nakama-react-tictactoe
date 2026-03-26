@@ -6,3 +6,17 @@ body {
   background-color: #0f172a; 
   color: #e2e8f0; 
 }
+
+/* Global Button Interactive Polish */
+button {
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}

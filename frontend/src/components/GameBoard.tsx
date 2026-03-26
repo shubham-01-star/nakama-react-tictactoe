@@ -72,7 +72,7 @@ export function GameBoard({ socket, match, sessionId, gameState, onLeave }: { so
                         className={`w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center text-5xl sm:text-7xl font-extrabold rounded-xl transition-all duration-200 shadow-inner
                             ${cell === 0 ? 'bg-slate-800 hover:bg-slate-600' : 'bg-slate-900'}
                             ${cell === 1 ? 'text-blue-400' : 'text-emerald-400'}
-                            ${(cell === 0 && isMyTurn && gameState.winner === 0) ? 'hover:scale-105 active:scale-95' : ''}
+                            ${(cell === 0 && isMyTurn && gameState.winner === 0) ? 'cursor-pointer hover:scale-105 active:scale-95' : 'cursor-not-allowed opacity-80'}
                         `}
                     >
                         {getSymbol(cell)}
