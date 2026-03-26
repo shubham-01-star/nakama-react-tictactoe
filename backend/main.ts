@@ -28,3 +28,6 @@ let InitModule: nkruntime.InitModule = function(ctx: nkruntime.Context, logger: 
         matchSignal
     });
 };
+
+// Reference InitModule to avoid it getting removed on build
+!InitModule && InitModule.bind(null);
