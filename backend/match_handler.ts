@@ -10,6 +10,7 @@ interface MatchState {
     deadline: number;
     playing: boolean;
     winner: number;
+    fastMode: boolean; // true = timed (30s), false = classic (no timer)
 }
 
 const OP_MOVE = 1;
@@ -49,15 +50,17 @@ function getTime(): number {
 }
 
 export const matchInit: nkruntime.MatchInitFunction = function(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, params: {[joinMessage: string]: string}) {
+    const fastMode = params.fast_mode === "true";
     const state: MatchState = {
         board: [0,0,0, 0,0,0, 0,0,0],
         players: {},
         turn: 1,
         deadline: 0,
         playing: false,
-        winner: 0
+        winner: 0,
+        fastMode: fastMode
     };
-    return { state, tickRate: 1, label: "tictactoe" };
+    return { state, tickRate: 1, label: fastMode ? "tictactoe_timed" : "tictactoe_classic" };
 };
 
 export const matchJoinAttempt: nkruntime.MatchJoinAttemptFunction = function(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, tick: number, state: nkruntime.MatchState, presence: nkruntime.Presence, metadata: {[key: string]: any}) {
@@ -82,7 +85,7 @@ export const matchJoin: nkruntime.MatchJoinFunction = function(ctx: nkruntime.Co
     if (Object.keys(s.players).length === 2 && !s.playing && s.winner === 0) {
         s.playing = true;
         s.turn = 1;
-        s.deadline = getTime() + 30; // 30s timeout for first turn
+        s.deadline = s.fastMode ? getTime() + 30 : 0;
         broadcastState(dispatcher, s);
     }
     
@@ -133,7 +136,7 @@ export const matchLoop: nkruntime.MatchLoopFunction = function(ctx: nkruntime.Co
                     
                     if (s.winner === 0) {
                         s.turn = s.turn === 1 ? 2 : 1;
-                        s.deadline = getTime() + 30;
+                        s.deadline = s.fastMode ? getTime() + 30 : 0;
                     } else {
                         s.playing = false;
                     }
@@ -145,8 +148,8 @@ export const matchLoop: nkruntime.MatchLoopFunction = function(ctx: nkruntime.Co
         }
     } // End of message loop
 
-    // Check Timer forfeit
-    if (s.playing && getTime() > s.deadline) {
+    // Check Timer forfeit (only in timed/fast mode)
+    if (s.playing && s.fastMode && s.deadline > 0 && getTime() > s.deadline) {
         s.winner = s.turn === 1 ? 2 : 1;
         s.playing = false;
         broadcastState(dispatcher, s);

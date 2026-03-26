@@ -12,10 +12,17 @@ export const matchmakerMatched: nkruntime.MatchmakerMatchedFunction = function(
     logger.info("Matchmaker matched users! Creating Tic-Tac-Toe match...");
     
     try {
-        // We create a match registered as "tictactoe" module.
-        // We can pass fast_mode boolean if we want to differentiate timed vs standard in future.
-        const matchId = nk.matchCreate("tictactoe", { fast_mode: false });
-        // Return the match ID to automatically instruct the clients to join this match
+        // Determine the mode from matched players' string properties
+        let fastMode = false;
+        for (const m of matches) {
+            const props = (m as any).properties || {};
+            if (props["mode"] === "timed") {
+                fastMode = true;
+                break;
+            }
+        }
+
+        const matchId = nk.matchCreate("tictactoe", { fast_mode: String(fastMode) });
         return matchId;
     } catch (error) {
         logger.error("Failed to create match from matchmaker: %s", error);

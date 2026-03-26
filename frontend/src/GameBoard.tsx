@@ -73,7 +73,9 @@ export function GameBoard({ socket, match, sessionId, onLeave }: { socket: Socke
         <div className="flex flex-col items-center">
             <h2 className="text-2xl font-bold mb-6">
                 {gameState.winner === 0 ? (
-                    isMyTurn ? <span className="text-emerald-400">Your Turn ({timeLeft}s)</span> : <span className="text-slate-400">Opponent's Turn ({timeLeft}s)</span>
+                    isMyTurn 
+                        ? <span className="text-emerald-400">Your Turn{gameState.deadline > 0 ? ` (${timeLeft}s)` : ''}</span> 
+                        : <span className="text-slate-400">Opponent's Turn{gameState.deadline > 0 ? ` (${timeLeft}s)` : ''}</span>
                 ) : (
                     gameState.winner === 3 ? <span className="text-yellow-400">It's a Draw!</span> :
                     gameState.winner === myMark ? <span className="text-blue-400">You Won! 🎉</span> :
