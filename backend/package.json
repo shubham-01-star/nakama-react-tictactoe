@@ -1,0 +1,20 @@
+{
+  "name": "nakama-tictactoe-backend",
+  "version": "0.1.0",
+  "description": "Tic-Tac-Toe Nakama Server Logic",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {
+    "nakama-runtime": "github:heroiclabs/nakama-common#master"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4",
+    "rollup": "^3.0.0",
+    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "tslib": "^2.5.0"
+  }
+}
