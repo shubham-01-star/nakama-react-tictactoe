@@ -4,10 +4,10 @@ tictactoe.startup-lab.cloud {
 	try_files {path} /index.html
 }
 
-api.tictactoe.startup-lab.cloud {
+api-tictactoe.startup-lab.cloud {
 	reverse_proxy nakama:7350
 }
 
-console.tictactoe.startup-lab.cloud {
+console-tictactoe.startup-lab.cloud {
 	reverse_proxy nakama:7351
 }
