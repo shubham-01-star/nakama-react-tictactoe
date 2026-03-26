@@ -1,0 +1,64 @@
+version: '3.8'
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:latest-v23.1
+    command: start-single-node --insecure --store=attrs=ram,path=/var/lib/cockroach/
+    restart: always
+    volumes:
+      - data:/var/lib/cockroach
+    expose:
+      - "8080"
+      - "26257"
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+
+  nakama:
+    image: heroiclabs/nakama:3.22.0
+    entrypoint:
+      - "/bin/sh"
+      - "-ecx"
+      - >
+        /nakama/nakama migrate up --database.address root@cockroachdb:26257 &&
+        exec /nakama/nakama --name nakama1 --database.address root@cockroachdb:26257 --logger.level DEBUG --session.token_expiry_sec 7200 --metrics.prometheus_port 9100
+    restart: always
+    links:
+      - "cockroachdb:db"
+    depends_on:
+      - cockroachdb
+    volumes:
+      - ./backend/build:/nakama/data/modules/build
+    expose:
+      - "7348"
+      - "7349"
+      - "7350"
+      - "7351"
+
+  frontend:
+    build:
+      context: ./frontend
+    command: >
+      sh -c "npm install && npm run build && cp -r dist/* /var/www/html/"
+    volumes:
+      - frontend_build:/var/www/html
+
+  caddy:
+    image: caddy:2
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - frontend_build:/var/www/html
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - nakama
+      - frontend
+
+volumes:
+  data:
+  frontend_build:
+  caddy_data:
+  caddy_config:

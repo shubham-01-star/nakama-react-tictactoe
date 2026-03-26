@@ -1,0 +1,13 @@
+tictactoe.startup-lab.cloud {
+	root * /var/www/html
+	file_server
+	try_files {path} /index.html
+}
+
+api.tictactoe.startup-lab.cloud {
+	reverse_proxy nakama:7350
+}
+
+console.tictactoe.startup-lab.cloud {
+	reverse_proxy nakama:7351
+}
