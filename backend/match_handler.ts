@@ -166,12 +166,54 @@ export const matchTerminate: nkruntime.MatchTerminateFunction = function(ctx: nk
         for (const sessionId in s.players) {
             const player = s.players[sessionId];
             const isWinner = player.mark === s.winner;
-            if (isWinner) {
-                try {
+
+            try {
+                if (isWinner) {
+                    // Increment wins
                     nk.leaderboardRecordWrite("global_wins", player.presence.userId, player.presence.username, 1);
-                } catch (error) {
-                    logger.error("Failed to write leaderboard: %s", error);
+
+                    // Read current streak, increment, and write back
+                    let currentStreak = 0;
+                    try {
+                        const storageRead = nk.storageRead([{
+                            collection: "player_stats",
+                            key: "streak",
+                            userId: player.presence.userId
+                        }]);
+                        if (storageRead.length > 0) {
+                            const data = storageRead[0].value as {[key: string]: any};
+                            currentStreak = data.current || 0;
+                        }
+                    } catch (_) {}
+                    
+                    currentStreak += 1;
+                    nk.storageWrite([{
+                        collection: "player_stats",
+                        key: "streak",
+                        userId: player.presence.userId,
+                        value: { current: currentStreak } as {[key: string]: any},
+                        permissionRead: 1,
+                        permissionWrite: 0
+                    }]);
+
+                    // Update best streak leaderboard (SET operator = keeps max)
+                    nk.leaderboardRecordWrite("global_streaks", player.presence.userId, player.presence.username, currentStreak);
+                } else {
+                    // Increment losses
+                    nk.leaderboardRecordWrite("global_losses", player.presence.userId, player.presence.username, 1);
+
+                    // Reset current streak to 0
+                    nk.storageWrite([{
+                        collection: "player_stats",
+                        key: "streak",
+                        userId: player.presence.userId,
+                        value: { current: 0 } as {[key: string]: any},
+                        permissionRead: 1,
+                        permissionWrite: 0
+                    }]);
                 }
+            } catch (error) {
+                logger.error("Failed to write leaderboard/stats: %s", error);
             }
         }
     }
