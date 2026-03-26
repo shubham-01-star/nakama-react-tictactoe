@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { client } from './nakama';
+import { client } from './lib/nakama';
 import { Session, type Socket, type MatchmakerMatched, type Match } from '@heroiclabs/nakama-js';
-import { GameBoard } from './GameBoard';
-import { Leaderboard } from './Leaderboard';
+import { GameBoard } from './components/GameBoard';
+import { Leaderboard } from './components/Leaderboard';
 
 const generateDeviceId = () => {
     let id = localStorage.getItem('device_id');

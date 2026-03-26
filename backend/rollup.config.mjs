@@ -3,7 +3,7 @@ import commonJS from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 
 export default {
-  input: './main.ts',
+  input: './src/main.ts',
   output: {
     file: 'build/index.js',
     format: 'cjs' 

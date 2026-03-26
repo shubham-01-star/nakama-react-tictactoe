@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { client } from './nakama';
+import { client } from '../lib/nakama';
 import type { Session } from '@heroiclabs/nakama-js';
 
 interface PlayerStats {
