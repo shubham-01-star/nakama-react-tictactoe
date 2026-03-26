@@ -36,12 +36,12 @@ services:
 
   # Frontend served via lightweight Nginx on port 3005
   frontend:
-    image: nginx:alpine
+    build:
+      context: ./frontend
+      dockerfile: prod.Dockerfile
     restart: always
     ports:
       - "3005:80"
-    volumes:
-      - ./frontend/dist:/usr/share/nginx/html
 
 volumes:
   data:
