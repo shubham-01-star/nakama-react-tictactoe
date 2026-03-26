@@ -49,6 +49,64 @@ function getTime(): number {
     return Math.floor(Date.now() / 1000); // Unix timestamp in seconds
 }
 
+function saveMatchStats(s: MatchState, logger: nkruntime.Logger, nk: nkruntime.Nakama) {
+    if (s.winner !== 1 && s.winner !== 2) return;
+
+    for (const sessionId in s.players) {
+        const player = s.players[sessionId];
+        const isWinner = player.mark === s.winner;
+
+        try {
+            if (isWinner) {
+                // Increment wins
+                nk.leaderboardRecordWrite("global_wins", player.presence.userId, player.presence.username, 1);
+
+                // Read current streak, increment, and write back
+                let currentStreak = 0;
+                try {
+                    const storageRead = nk.storageRead([{
+                        collection: "player_stats",
+                        key: "streak",
+                        userId: player.presence.userId
+                    }]);
+                    if (storageRead.length > 0) {
+                        const data = storageRead[0].value as {[key: string]: any};
+                        currentStreak = data.current || 0;
+                    }
+                } catch (_) {}
+                
+                currentStreak += 1;
+                nk.storageWrite([{
+                    collection: "player_stats",
+                    key: "streak",
+                    userId: player.presence.userId,
+                    value: { current: currentStreak } as {[key: string]: any},
+                    permissionRead: 1,
+                    permissionWrite: 0
+                }]);
+
+                // Update best streak leaderboard (SET operator = keeps max)
+                nk.leaderboardRecordWrite("global_streaks", player.presence.userId, player.presence.username, currentStreak);
+            } else {
+                // Increment losses
+                nk.leaderboardRecordWrite("global_losses", player.presence.userId, player.presence.username, 1);
+
+                // Reset current streak to 0
+                nk.storageWrite([{
+                    collection: "player_stats",
+                    key: "streak",
+                    userId: player.presence.userId,
+                    value: { current: 0 } as {[key: string]: any},
+                    permissionRead: 1,
+                    permissionWrite: 0
+                }]);
+            }
+        } catch (error) {
+            logger.error("Failed to write leaderboard/stats: %s", error);
+        }
+    }
+}
+
 export const matchInit: nkruntime.MatchInitFunction = function(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, params: {[joinMessage: string]: string}) {
     const fastMode = params.fast_mode === "true";
     const state: MatchState = {
@@ -100,6 +158,7 @@ export const matchLeave: nkruntime.MatchLeaveFunction = function(ctx: nkruntime.
         if (leavingPlayer && s.playing) {
             s.winner = leavingPlayer.mark === 1 ? 2 : 1;
             s.playing = false;
+            saveMatchStats(s, logger, nk);
         }
     }
     
@@ -139,6 +198,7 @@ export const matchLoop: nkruntime.MatchLoopFunction = function(ctx: nkruntime.Co
                         s.deadline = s.fastMode ? getTime() + 30 : 0;
                     } else {
                         s.playing = false;
+                        saveMatchStats(s, logger, nk);
                     }
                     broadcastState(dispatcher, s);
                 }
@@ -152,6 +212,7 @@ export const matchLoop: nkruntime.MatchLoopFunction = function(ctx: nkruntime.Co
     if (s.playing && s.fastMode && s.deadline > 0 && getTime() > s.deadline) {
         s.winner = s.turn === 1 ? 2 : 1;
         s.playing = false;
+        saveMatchStats(s, logger, nk);
         broadcastState(dispatcher, s);
     }
 
@@ -164,63 +225,7 @@ export const matchLoop: nkruntime.MatchLoopFunction = function(ctx: nkruntime.Co
 
 export const matchTerminate: nkruntime.MatchTerminateFunction = function(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, tick: number, state: nkruntime.MatchState, graceSeconds: number) {
     const s = state as MatchState;
-
-    if (s.winner === 1 || s.winner === 2) {
-        for (const sessionId in s.players) {
-            const player = s.players[sessionId];
-            const isWinner = player.mark === s.winner;
-
-            try {
-                if (isWinner) {
-                    // Increment wins
-                    nk.leaderboardRecordWrite("global_wins", player.presence.userId, player.presence.username, 1);
-
-                    // Read current streak, increment, and write back
-                    let currentStreak = 0;
-                    try {
-                        const storageRead = nk.storageRead([{
-                            collection: "player_stats",
-                            key: "streak",
-                            userId: player.presence.userId
-                        }]);
-                        if (storageRead.length > 0) {
-                            const data = storageRead[0].value as {[key: string]: any};
-                            currentStreak = data.current || 0;
-                        }
-                    } catch (_) {}
-                    
-                    currentStreak += 1;
-                    nk.storageWrite([{
-                        collection: "player_stats",
-                        key: "streak",
-                        userId: player.presence.userId,
-                        value: { current: currentStreak } as {[key: string]: any},
-                        permissionRead: 1,
-                        permissionWrite: 0
-                    }]);
-
-                    // Update best streak leaderboard (SET operator = keeps max)
-                    nk.leaderboardRecordWrite("global_streaks", player.presence.userId, player.presence.username, currentStreak);
-                } else {
-                    // Increment losses
-                    nk.leaderboardRecordWrite("global_losses", player.presence.userId, player.presence.username, 1);
-
-                    // Reset current streak to 0
-                    nk.storageWrite([{
-                        collection: "player_stats",
-                        key: "streak",
-                        userId: player.presence.userId,
-                        value: { current: 0 } as {[key: string]: any},
-                        permissionRead: 1,
-                        permissionWrite: 0
-                    }]);
-                }
-            } catch (error) {
-                logger.error("Failed to write leaderboard/stats: %s", error);
-            }
-        }
-    }
-
+    // Termination handled during shutdown. Stats shouldn't be duplicated here.
     return { state: s };
 };
 

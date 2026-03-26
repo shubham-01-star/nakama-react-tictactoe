@@ -10,9 +10,9 @@ let InitModule: nkruntime.InitModule = function(ctx: nkruntime.Context, logger: 
 
     // Create leaderboards (idempotent — Nakama ignores if already exists)
     try {
-        nk.leaderboardCreate("global_wins", false, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.INCREMENTAL);
-        nk.leaderboardCreate("global_losses", false, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.INCREMENTAL);
-        nk.leaderboardCreate("global_streaks", false, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.SET);
+        nk.leaderboardCreate("global_wins", false, "desc" as any, "incr" as any, null, null, false);
+        nk.leaderboardCreate("global_losses", false, "desc" as any, "incr" as any, null, null, false);
+        nk.leaderboardCreate("global_streaks", false, "desc" as any, "set" as any, null, null, false);
     } catch (e) {
         logger.error("Error creating leaderboards: %s", e);
     }
