@@ -28,37 +28,20 @@ services:
       - cockroachdb
     volumes:
       - ./backend/build:/nakama/data/modules/build
-    expose:
-      - "7348"
-      - "7349"
-      - "7350"
-      - "7351"
+    ports:
+      - "7348:7348"
+      - "7349:7349"
+      - "7350:7350"
+      - "7351:7351"
 
+  # Frontend served via lightweight Nginx on port 3005
   frontend:
-    build:
-      context: ./frontend
-    command: >
-      sh -c "npm install && npm run build && cp -r dist/* /var/www/html/"
-    volumes:
-      - frontend_build:/var/www/html
-
-  caddy:
-    image: caddy:2
+    image: nginx:alpine
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "3005:80"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - frontend_build:/var/www/html
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - nakama
-      - frontend
+      - ./frontend/dist:/usr/share/nginx/html
 
 volumes:
   data:
-  frontend_build:
-  caddy_data:
-  caddy_config:
