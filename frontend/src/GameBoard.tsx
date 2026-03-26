@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Match, Socket, MatchData } from '@heroiclabs/nakama-js';
 
 const OP_MOVE = 1;

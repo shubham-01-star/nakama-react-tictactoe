@@ -9,7 +9,7 @@ let InitModule: nkruntime.InitModule = function(ctx: nkruntime.Context, logger: 
 
     // Create global_wins leaderboard if it doesn't exist
     try {
-        nk.leaderboardCreate("global_wins", false, "desc", "incr");
+        nk.leaderboardCreate("global_wins", false, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.INCREMENTAL);
     } catch (e) {
         logger.error("Error creating leaderboard: %s", e);
     }

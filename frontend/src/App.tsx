@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { client } from './nakama';
 import { Session, type Socket, type MatchmakerMatched, type Match } from '@heroiclabs/nakama-js';
 import { GameBoard } from './GameBoard';
